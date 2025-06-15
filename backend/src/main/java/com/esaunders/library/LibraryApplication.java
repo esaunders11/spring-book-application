@@ -1,13 +1,13 @@
-package com.esaunders.demo;
+package com.esaunders.library;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SpringBookApplication {
+public class LibraryApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SpringBookApplication.class, args);
+		SpringApplication.run(LibraryApplication.class, args);
 	}
 
 }

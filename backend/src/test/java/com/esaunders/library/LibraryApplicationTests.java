@@ -1,10 +1,10 @@
-package com.esaunders.demo;
+package com.esaunders.library;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SpringBookApplicationTests {
+class LibraryApplicationTests {
 
 	@Test
 	void contextLoads() {
