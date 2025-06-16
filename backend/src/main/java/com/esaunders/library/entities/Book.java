@@ -1,20 +1,39 @@
 package com.esaunders.library.entities;
 
+import jakarta.persistence.*;
+
 /**
  * Book class creates book objects,
  * Books have a title, genre, length, and author's last name
  * 
  * @author Ethan Saunders
  */
+@Entity
+@Table(name = "books")
 public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
     /** Title of Book */
+    @Column(name = "title")
     private String title;
     /** Author's last name */
+    @Column(name = "author")
     private String author;
+    /** Book Genre */
+    @Column(name = "genre")
+    private String genre;
     /** Number of Pages of Book */
+    @Column(name = "length")
     private int length;
-    /** Book information */
-    private String[] info;
+    @Column(name = "publish_year")
+    private String year;
+    @Column(name = "first_sentence")
+    private String sentence;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
     
     /**
      * Generates Book Object with title, author, and length
@@ -27,6 +46,7 @@ public class Book {
         setTitle(title);
         setAuthor(author);
         setLength(length);
+        setGenre(genre);
     }
 
     /**
@@ -34,7 +54,8 @@ public class Book {
      * @param info list of information
      */
     public void addInfo(String[] info) {
-        this.info = info;
+        year = info[0];
+        sentence = info[1];
     }
 
     /**
@@ -42,6 +63,7 @@ public class Book {
      * @return list of Book's information
      */
     public String[] getInfo(){
+        String[] info = {year, sentence};
         return info;
     }
 
@@ -64,6 +86,14 @@ public class Book {
      */
     public String getTitle() {
         return this.title;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public String getGenre() {
+        return genre;
     }
 
     /**

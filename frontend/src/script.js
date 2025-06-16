@@ -3,6 +3,7 @@ let library = [];
 const tableBody = document.querySelector("#bookTable tbody");
 const form = document.getElementById("addBookForm");
 
+
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   const title = document.getElementById("title").value.trim();
