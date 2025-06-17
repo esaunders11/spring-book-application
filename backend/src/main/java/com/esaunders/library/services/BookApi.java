@@ -52,11 +52,6 @@ public class BookApi {
                         info[0] = parser.getValueAsString();
                         parser.nextToken();
                     }
-                    if ("first_sentence".equals(fieldName)) {
-                        parser.nextToken();
-                        info[1] = parser.getValueAsString();
-                        break;
-                    }
                 }
 
                 return info;

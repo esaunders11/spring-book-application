@@ -10,4 +10,5 @@ import com.esaunders.library.entities.User;
 public interface UserMapper {
     UserDto toDto(User user);
     User toEntity(RegisterUser request);
+    User toEntity(UserDto userDto);
 }

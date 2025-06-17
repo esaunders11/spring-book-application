@@ -1,6 +1,8 @@
 package com.esaunders.library.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 /**
  * Book class creates book objects,
@@ -8,6 +10,8 @@ import jakarta.persistence.*;
  * 
  * @author Ethan Saunders
  */
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "books")
 public class Book {
@@ -29,8 +33,6 @@ public class Book {
     private int length;
     @Column(name = "publish_year")
     private String year;
-    @Column(name = "first_sentence")
-    private String sentence;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -49,13 +51,16 @@ public class Book {
         setGenre(genre);
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     /**
      * Add Book information
      * @param info list of information
      */
     public void addInfo(String[] info) {
         year = info[0];
-        sentence = info[1];
     }
 
     /**
@@ -63,7 +68,7 @@ public class Book {
      * @return list of Book's information
      */
     public String[] getInfo(){
-        String[] info = {year, sentence};
+        String[] info = {year};
         return info;
     }
 

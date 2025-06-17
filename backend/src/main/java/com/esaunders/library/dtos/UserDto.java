@@ -4,13 +4,11 @@ import java.util.List;
 
 import com.esaunders.library.entities.Book;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@AllArgsConstructor
-@Getter
+@Data
 public class UserDto {
-    private Long id;
     private String name;
+    private String email;
     private List<Book> books;
 }

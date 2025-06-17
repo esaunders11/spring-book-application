@@ -11,8 +11,9 @@ function login() {
       if (!res.ok) throw new Error('Invalid login');
       return res.json();
     })
-    .then(user => {
-      console.log("Logged in user:", user);
+    .then(data => {
+      console.log(data.token);
+      localStorage.setItem("token", data.token);
       window.location.href = "home.html";
     })
     .catch(err => {
