@@ -1,6 +1,5 @@
 package com.esaunders.library.entities;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,12 +33,12 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "isbn13")
-    private float isbn13;
+    private String isbn13;
     /** Title of Book */
     @Column(name = "title")
     private String title;
     /** Author's last name */
-    @Column(name = "author")
+    @Column(name = "authors")
     private String author;
     /** Book Genre */
     @Column(name = "genre")

@@ -74,6 +74,7 @@ bookForm.addEventListener('submit', async (e) => {
 
   renderBooks();
   bookForm.reset();
+  location.reload();
 });
 
 sortBy.addEventListener('change', () => {
