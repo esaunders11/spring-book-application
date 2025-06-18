@@ -1,7 +1,10 @@
 let library = [];
 
-const tableBody = document.querySelector("#bookTable tbody");
-const form = document.getElementById("addBookForm");
+const bookForm = document.getElementById('bookForm');
+const bookGrid = document.getElementById('bookGrid');
+const sortBy = document.getElementById('sortBy');
+
+let selectedIndex = null;
 
 window.onload = function() {
   const token = localStorage.getItem("token");
@@ -21,32 +24,28 @@ window.onload = function() {
     user.books.forEach(book => {
       library.push(book)
     });
-    renderTable();
+    renderBooks();
   })
   .catch(err => {
     console.error("Error loading user:", err.message);
   });
 };
 
-form.addEventListener("submit", (e) => {
+bookForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const title = document.getElementById("title").value.trim();
-  const author = document.getElementById("author").value.trim();
-  const genre = document.getElementById("genre").value.trim();
-  const length = parseInt(document.getElementById("pages").value);
 
-  if (!title || !author || !genre || isNaN(length)) {
-    alert("All fields are required.");
-    return;
-  }
-  
-  fetch('http://localhost:8080/home/add-book', {
+  const title = document.getElementById('title').value.trim();
+  const author = document.getElementById('author').value.trim();
+
+  if (!title || !author) return;
+
+  fetch("http://localhost:8080/home/add-book", {
     method: 'POST',
-    headers: { 
+    headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + localStorage.getItem("token") 
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
     },
-    body: JSON.stringify({ title, author, genre, length })
+    body: JSON.stringify({ title, author })
   })
   .then(res => {
     if (!res.ok) {
@@ -54,38 +53,92 @@ form.addEventListener("submit", (e) => {
     }
     return res.json();
   })
+  .then(data => {
+    const newBook = {
+    title,
+    author,
+    genre: data.genre, 
+    pages: data.pages,
+    description: data.description,
+    year: data.year,
+    rating: data.rating,
+    thumbnail: data.thumbnail,
+    added: Date.now()
+    }
+    library.push(newBook);
+  })
   .catch(err => {
-      console.log('Unable to add book');
+    console.log('Unable to add book: ' + err.message);
+    showError("Adding book failed.");
   });
 
-  const book = { title, author, genre, length };
-  library.push(book);
-  renderTable();
-  form.reset();
+  renderBooks();
+  bookForm.reset();
 });
 
-function renderTable() {
-  tableBody.innerHTML = "";
-  library.forEach((book, index) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${book.title}</td>
-                     <td>${book.author}</td>
-                     <td>${book.genre}</td>
-                     <td>${book.length}</td>`;
-    row.addEventListener("dblclick", () => showBookInfo(book));
-    row.dataset.index = index;
-    tableBody.appendChild(row);
+sortBy.addEventListener('change', () => {
+  renderBooks();
+});
+
+function renderBooks() {
+  bookGrid.innerHTML = "";
+
+  const sorted = [...library];
+  const key = sortBy.value;
+  if (key !== "added") {
+    sorted.sort((a, b) => {
+      if (key === "publishDate") return new Date(a[key]) - new Date(b[key]);
+      if (typeof a[key] === "string") return a[key].localeCompare(b[key]);
+      return a[key] - b[key];
+    });
+  }
+
+  sorted.forEach(book => {
+    const card = document.createElement("div");
+    console.log(book.thumbnail);
+    card.className = "book-card";
+    card.innerHTML = `
+      <img src="${book.thumbnail || "default-cover.png"}" alt="${book.title}" />
+      <div class="book-info">
+        <strong>${book.title}</strong><br/>
+        Author: ${book.author}<br/>
+        Genre: ${book.genre}<br/>
+        Pages: ${book.pages}<br/>
+        Published: ${book.year}
+      </div>
+    `;
+
+    let tappedOnce = false;
+    card.addEventListener('click', () => {
+    if (tappedOnce) {
+      openModal(book);
+      tappedOnce = false;
+    } else {
+      tappedOnce = true;
+      setTimeout(() => tappedOnce = false, 300);
+
+      if (selectedIndex === library.indexOf(book)) {
+        document.querySelectorAll(".book-card").forEach(c => c.classList.remove("selected"));
+        selectedIndex = null;
+      } else {
+        document.querySelectorAll(".book-card").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        selectedIndex = library.indexOf(book);
+      }
+    }
+  });
+
+    bookGrid.appendChild(card);
   });
 }
 
-document.getElementById("removeBook").addEventListener("click", () => {
-  const selected = document.querySelector("tr.selected");
-  if (!selected) {
-    alert("Select a row to remove.");
+document.getElementById("deleteBookBtn").addEventListener("click", () => {
+  if (selectedIndex === null) {
+    alert("Please select a book to delete.");
     return;
   }
-  const index = selected.dataset.index;
-  var book = library.splice(index, 1)[0];
+
+  var book = library.splice(selectedIndex, 1)[0];
   fetch('http://localhost:8080/home/delete-book', {
     method: 'DELETE',
     headers: { 
@@ -105,55 +158,47 @@ document.getElementById("removeBook").addEventListener("click", () => {
   .catch(err => {
       console.log('Unable to remove book');
   });
-  renderTable();
+  renderBooks();
+  selectedIndex = null;
+  renderBooks();
 });
 
+const modal = document.getElementById("bookModal");
+const modalDetails = document.getElementById("modalDetails");
+const closeModal = document.getElementById("closeModal");
 
-document.getElementById("exportLibrary").addEventListener("click", () => {
-  document.getElementById("exportPreview").value = library.map(b => 
-    `${b.title},${b.author},${b.genre},${b.length}`).join("\n");
-  document.getElementById("exportModal").classList.remove("hidden");
-});
-
-document.getElementById("confirmExport").addEventListener("click", () => {
-  const data = document.getElementById("exportPreview").value;
-  const blob = new Blob([data], { type: "text/plain" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "library_export.txt";
-  a.click();
-  closeModal();
-});
-
-function showBookInfo(book) {
-  document.getElementById("infoText").textContent = 
-    `Title: ${book.title}\nAuthor: ${book.author}\nGenre: ${book.genre}\nPages: ${book.length}`;
-  document.getElementById("infoModal").classList.remove("hidden");
+function openModal(book) {
+  modalDetails.innerHTML = `
+    <h2>${book.title}</h2>
+    <p><strong>Author:</strong> ${book.author}</p>
+    <p><strong>Genre:</strong> ${book.genre}</p>
+    <p><strong>Pages:</strong> ${book.pages}</p>
+    <p><strong>Published:</strong> ${book.year}</p>
+    <p><strong>Rating:</strong> ${book.rating || 'N/A'}</p>
+    <p><strong>Description:</strong> ${book.description || 'No description available.'}</p>
+  `;
+  modal.classList.remove("hidden");
+  document.body.style.overflow = "hidden"; 
 }
 
-function closeModal() {
-  document.querySelectorAll(".modal").forEach(modal => modal.classList.add("hidden"));
-}
-
-// Sort table
-document.querySelectorAll("#bookTable th").forEach(th => {
-  th.addEventListener("click", () => {
-    const col = th.dataset.col;
-    library.sort((a, b) => {
-      if (typeof a[col] === "string") {
-        return a[col].localeCompare(b[col]);
-      }
-      return a[col] - b[col];
-    });
-    renderTable();
-  });
+closeModal.addEventListener("click", () => {
+  modal.classList.add("hidden");
+  document.body.style.overflow = ""; 
 });
 
-// Select table row
-tableBody.addEventListener("click", (e) => {
-  const rows = document.querySelectorAll("tbody tr");
-  rows.forEach(r => r.classList.remove("selected"));
-  if (e.target.closest("tr")) {
-    e.target.closest("tr").classList.add("selected");
+modal.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.classList.add("hidden");
+    document.body.style.overflow = "";
   }
 });
+
+function showError(message) {
+  const errorDiv = document.getElementById("errorMessage");
+  errorDiv.textContent = message;
+  errorDiv.classList.remove("hidden");
+
+  setTimeout(() => {
+    errorDiv.classList.add("hidden");
+  }, 4000); 
+}

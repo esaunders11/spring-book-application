@@ -3,58 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Library Management</title>
-  <link rel="stylesheet" href="style.css"/>
+  <title>My Library</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body>
-  <div id="library-app" style="display: none;">
-    <!-- Your library app UI goes here -->
+<div id="bookModal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <span id="closeModal" class="close-btn">&times;</span>
+    <div id="modalDetails"></div>
   </div>
-
+</div>
+<body>
   <div class="container">
-    <h1>Library Management</h1>
-    
-    <form id="addBookForm">
-      <input type="text" id="title" placeholder="Title" required />
+    <h1>My Book Library</h1>
+    <div id="errorMessage" class="error hidden">Book Not Found</div>
+    <form id="bookForm">
+      <input type="text" id="title" placeholder="Book Title" required />
       <input type="text" id="author" placeholder="Author" required />
-      <input type="text" id="genre" placeholder="Genre" required />
-      <input type="number" id="pages" placeholder="Number of Pages" required />
       <button type="submit">Add Book</button>
     </form>
 
-    <table id="bookTable">
-      <thead>
-        <tr>
-          <th data-col="title">Title</th>
-          <th data-col="author">Author</th>
-          <th data-col="genre">Genre</th>
-          <th data-col="pages">Number of Pages</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <div class="actions">
-      <button id="removeBook">Remove Book</button>
-      <button id="exportLibrary">Export Library</button>
+    <div class="sort-controls">
+      <label for="sortBy">Sort by:</label>
+      <select id="sortBy">
+        <option value="added">Recently Added</option>
+        <option value="author">Author</option>
+        <option value="genre">Genre</option>
+        <option value="length">Length</option>
+        <option value="publishDate">Publish Date</option>
+      </select>
     </div>
+    <button id="deleteBookBtn" style="margin-bottom: 20px;">Delete Selected Book</button>
 
-    <div id="exportModal" class="modal hidden">
-      <div class="modal-content">
-        <h2>Export Preview</h2>
-        <textarea id="exportPreview" readonly></textarea>
-        <button id="confirmExport">Export</button>
-        <button onclick="closeModal()">Close</button>
-      </div>
-    </div>
-
-    <div id="infoModal" class="modal hidden">
-      <div class="modal-content" id="infoContent">
-        <h2>Book Info</h2>
-        <p id="infoText">Loading...</p>
-        <button onclick="closeModal()">Close</button>
-      </div>
-    </div>
+    <div id="bookGrid" class="grid"></div>
   </div>
 
   <script src="script.js"></script>

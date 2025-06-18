@@ -7,5 +7,6 @@ import com.esaunders.library.entities.Book;
 
 @Mapper(componentModel = "spring")
 public interface BookMapper {
+    BookDto tDto(Book book);
     Book toEntity(BookDto bookDto);
 }

@@ -7,5 +7,9 @@ public class BookDto {
     private String title;
     private String author;
     private String genre;
-    private int length;
+    private String thumbnail;
+    private String description;
+    private double year;
+    private double rating;
+    private int pages;
 }
