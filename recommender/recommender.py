@@ -8,7 +8,11 @@ class BookRecommender:
 
     def recommend(self, book):
         try:
-            index = self.books[self.books['title'] ==  book].index[0]
+            filtered = self.books[self.books['title'].str.strip().str.lower() == book.strip().lower()]
+            if filtered.empty:
+                return []
+            index = filtered.index[0]
+
         except IndexError:
             return []
         distance = sorted(
@@ -16,5 +20,8 @@ class BookRecommender:
             key=lambda vector:vector[1])
         recommanded_books = []
         for i in distance[1:6]:
-            recommanded_books.append(self.books[i[0]].title)
+            recommanded_books.append({
+                "title": self.books.iloc[i[0]]['title'],
+                "author": self.books.iloc[i[0]]['authors'] if pd.notna(self.books.iloc[i[0]]['authors']) else None
+                })
         return recommanded_books

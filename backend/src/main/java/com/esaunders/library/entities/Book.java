@@ -33,7 +33,7 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "isbn13")
-    private float isbn13;
+    private String isbn13;
     /** Title of Book */
     @Column(name = "title")
     private String title;

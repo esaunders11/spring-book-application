@@ -75,7 +75,6 @@ bookForm.addEventListener('submit', async (e) => {
   });
 
   bookForm.reset();
-  location.reload();
 });
 
 sortBy.addEventListener('change', () => {
@@ -171,11 +170,12 @@ document.getElementById('recommendBookBtn').addEventListener("click", () => {
   }
 
   recommendedBooks = [];
-  var book = library.splice(selectedIndex, 1)[0];
-  fetch(`http://localhost:8080/recommend?title=${encodeURIComponent(book.title)}`, {
+  var book = library[selectedIndex];
+  fetch(`http://localhost:8080/recommend/with?title=${encodeURIComponent(book.title)}`, {
     method: 'GET',
     headers: { 
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + localStorage.getItem("token") 
     }
   })
   .then(res => {
