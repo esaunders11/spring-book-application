@@ -9,7 +9,7 @@ public class BookDto {
     private String genre;
     private String thumbnail;
     private String description;
-    private double year;
+    private int year;
     private double rating;
     private int pages;
 }

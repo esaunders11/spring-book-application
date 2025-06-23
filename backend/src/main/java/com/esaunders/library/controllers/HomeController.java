@@ -62,7 +62,7 @@ public class HomeController {
             userRepository.save(user);
         }
 
-        BookDto response = bookMapper.tDto(book);
+        BookDto response = bookMapper.toDto(book);
         
         return ResponseEntity.ok(response);
     }

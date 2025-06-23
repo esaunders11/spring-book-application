@@ -1,4 +1,5 @@
 let library = [];
+let recommendedBooks = [];
 
 const bookForm = document.getElementById('bookForm');
 const bookGrid = document.getElementById('bookGrid');
@@ -66,13 +67,13 @@ bookForm.addEventListener('submit', async (e) => {
     added: Date.now()
     }
     library.push(newBook);
+    renderBooks();
   })
   .catch(err => {
     console.log('Unable to add book: ' + err.message);
     showError("Adding book failed.");
   });
 
-  renderBooks();
   bookForm.reset();
   location.reload();
 });
@@ -159,9 +160,109 @@ document.getElementById("deleteBookBtn").addEventListener("click", () => {
   .catch(err => {
       console.log('Unable to remove book');
   });
-  renderBooks();
   selectedIndex = null;
   renderBooks();
+});
+
+document.getElementById('recommendBookBtn').addEventListener("click", () => {
+  if (selectedIndex === null) {
+    alert("Please select a book to recommend from.");
+    return;
+  }
+
+  recommendedBooks = [];
+  var book = library.splice(selectedIndex, 1)[0];
+  fetch(`http://localhost:8080/recommend?title=${encodeURIComponent(book.title)}`, {
+    method: 'GET',
+    headers: { 
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(res => {
+    if (!res.ok) {
+      throw new Error('Failed to recommend books');
+    }
+    return res.json();
+  })
+  .then(data => {
+    recommendedBooks = data.map(book => ({
+    title: book.title,
+    author: book.author,
+    genre: book.genre,
+    pages: book.pages,
+    description: book.description,
+    year: book.year,
+    rating: book.rating,
+    thumbnail: book.thumbnail || "default-cover.png",
+    added: Date.now()
+    }));
+    openRecommenedModel(recommendedBooks);
+  })
+  .catch(err => {
+      console.log('Unable to recommened books', err.message);
+  });
+  selectedIndex = null;
+});
+
+const recommendedModal = document.getElementById("recommendModal");
+const recommendDetails = document.getElementById("recommendDetails");
+const closeRecommendedModal = document.getElementById("closeRecommendedModal");
+const recommendedGrid = document.getElementById("recommendedGrid");
+
+function openRecommenedModel(recomendedBooks) {
+  recommendedGrid.innerHTML = "";
+
+  recomendedBooks.forEach(book => {
+    const card = document.createElement("div");
+    console.log(book.thumbnail);
+    card.className = "book-card";
+    card.innerHTML = `
+      <img src="${book.thumbnail || "default-cover.png"}" alt="${book.title}" />
+      <div class="book-info">
+        <strong>${book.title}</strong><br/>
+        Author: ${book.author}<br/>
+        Genre: ${book.genre}<br/>
+        Pages: ${book.pages}<br/>
+        Published: ${book.year}
+      </div>
+    `;
+
+    let tappedOnce = false;
+    card.addEventListener('click', () => {
+    if (tappedOnce) {
+      openModal(book);
+      tappedOnce = false;
+    } else {
+      tappedOnce = true;
+      setTimeout(() => tappedOnce = false, 300);
+
+      if (selectedIndex === recomendedBooks.indexOf(book)) {
+        document.querySelectorAll(".book-card").forEach(c => c.classList.remove("selected"));
+        selectedIndex = null;
+      } else {
+        document.querySelectorAll(".book-card").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        selectedIndex = recomendedBooks.indexOf(book);
+      }
+    }
+  });
+
+    recommendedGrid.appendChild(card);
+  });
+  recommendedModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+closeRecommendedModal.addEventListener("click", () => {
+  recommendedModal.classList.add("hidden");
+  document.body.style.overflow = ""; 
+});
+
+recommendedModal.addEventListener("click", (e) => {
+  if (e.target === recommendedModal) {
+    recommendedModal.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
 });
 
 const modal = document.getElementById("bookModal");

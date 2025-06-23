@@ -33,12 +33,12 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "isbn13")
-    private String isbn13;
+    private float isbn13;
     /** Title of Book */
     @Column(name = "title")
     private String title;
     /** Author's last name */
-    @Column(name = "authors")
+    @Column(name = "author")
     private String author;
     /** Book Genre */
     @Column(name = "genre")
